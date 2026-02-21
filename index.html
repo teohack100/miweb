@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>programmit - Cuentas Premium</title>
+    <link rel="icon" id="faviconLink" href="" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--config-fondo, #111827);
+            color: var(--config-texto, #ffffff);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Scrollbar Hide Utility */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ====== SIDEBAR IZQUIERDO ====== */
+        .layout-with-sidebar {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: #0d1117;
+            border-right: 1px solid #21262d;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-nav a,
+        .sidebar-nav button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav button:hover {
+            color: #e6edf3;
+            background: rgba(88, 166, 255, 0.08);
+        }
+
+        .sidebar-nav a.active,
+        .sidebar-nav button.active {
+            color: #58a6ff;
+            background: rgba(88, 166, 255, 0.12);
+            border-left: 3px solid #58a6ff;
+        }
+
+        .sidebar-nav svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8b949e;
+            padding: 8px 20px 12px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Desktop: sidebar visible al lado */
+        @media (min-width: 1024px) {
+            .layout-with-sidebar {
+                flex-direction: row;
+            }
+
+            .sidebar-overlay {
+                display: none !important;
+            }
+
+            .btn-menu-mobile {
+                display: none !important;
+            }
+        }
+
+        /* Mobile: sidebar oculto por defecto, overlay al abrir */
+        @media (max-width: 1023px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                overflow-y: auto;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 99;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s, visibility 0.3s;
+            }
+
+            .sidebar-overlay.visible {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        /* ====== COMBO SECTION ====== */
+        .combo-section {
+            background: #0d1117;
+        }
+
+        .combo-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .combo-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .combo-column-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .combo-column-box h3 {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #e6edf3;
+            margin-bottom: 20px;
+        }
+
+        /* Carousel */
+        .combo-carousel-wrapper {
+            position: relative;
+        }
+
+        .combo-carousel {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            padding: 8px 4px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .combo-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .combo-card {
+            /* Show 3 items: (100% - 2 gaps of 16px) / 3 */
+            flex: 0 0 calc((100% - 32px) / 3);
+            scroll-snap-align: start;
+            background: #0d1117;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            text-align: center;
+        }
+
+        .combo-card:hover {
+            border-color: #58a6ff;
+            transform: translateY(-3px);
+        }
+
+        .combo-card.selected {
+            border-color: #3fb950;
+            background: rgba(63, 185, 80, 0.08);
+        }
+
+        .combo-card .check-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: transparent;
+            transition: all 0.2s;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .combo-card.selected .check-badge {
+            background: #3fb950;
+            border-color: #3fb950;
+            color: #fff;
+        }
+
+        .combo-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin: 0 auto 8px;
+            display: block;
+        }
+
+        .combo-card .card-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #e6edf3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .combo-card .card-price {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #3fb950;
+            margin-top: 4px;
+        }
+
+        /* Carousel nav arrows */
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(22, 27, 34, 0.9);
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .carousel-arrow:hover {
+            background: #30363d;
+        }
+
+        .carousel-arrow.left {
+            left: -12px;
+        }
+
+        .carousel-arrow.right {
+            right: -12px;
+        }
+
+        /* Dots */
+        .combo-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .combo-dots .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #30363d;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .combo-dots .dot.active {
+            background: #58a6ff;
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        /* Selected Icons Row */
+        .selected-icons-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #21262d;
+            flex-wrap: wrap;
+        }
+
+        .selected-icons-row img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #0d1117;
+            padding: 2px;
+        }
+
+        .selected-icons-row .subtotal {
+            margin-left: auto;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #e6edf3;
+        }
+
+        /* Floating Total Panel */
+        .combo-total-panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 16px 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .combo-total-panel.visible {
+            display: flex;
+        }
+
+        .combo-total-panel img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .combo-total-panel .total-label {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #e6edf3;
+        }
+
+        .combo-total-panel .btn-buy-combo {
+            background: #238636;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-left: 12px;
+        }
+
+        .combo-total-panel .btn-buy-combo:hover {
+            background: #2ea043;
+        }
+
+        /* ====== PRECIOS TABLE ====== */
+        .precios-table-section {
+            background: #0d1117;
+        }
+
+        .precios-table-wrap {
+            overflow-x: auto;
+        }
+
+        .precios-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        .precios-table thead th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8b949e;
+            border-bottom: 1px solid #21262d;
+            white-space: nowrap;
+        }
+
+        .precios-table tbody tr {
+            border-bottom: 1px solid #161b22;
+            transition: background 0.15s;
+        }
+
+        .precios-table tbody tr:hover {
+            background: rgba(88, 166, 255, 0.04);
+        }
+
+        .precios-table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            font-size: 0.88rem;
+            color: #e6edf3;
+            white-space: nowrap;
+        }
+
+        .precios-table .vendedor-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .precios-table .vendedor-cell img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: #161b22;
+            padding: 2px;
+        }
+
+        .precios-table .vendedor-name {
+            color: #58a6ff;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .precios-table .vendedor-stock {
+            color: #8b949e;
+            font-size: 0.72rem;
+        }
+
+        .precios-table .servicio-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .precios-table .servicio-id {
+            color: #8b949e;
+            font-size: 0.75rem;
+        }
+
+        .precios-table .servicio-name {
+            font-weight: 600;
+        }
+
+        .precios-table .badge-disponible {
+            display: inline-block;
+            background: #238636;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 2px;
+        }
+
+        .precios-table .btn-terminos {
+            background: #21262d;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .precios-table .btn-terminos:hover {
+            background: #30363d;
+        }
+
+        .precios-table .precio-cell {
+            color: #e6edf3;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .precios-table .stock-cell {
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .precios-table .btn-comprar {
+            background: #238636;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .precios-table .btn-comprar:hover {
+            background: #2ea043;
+            transform: translateY(-1px);
+        }
+
+        /* ====== GLOBAL MOBILE FIXES ====== */
+        @media (max-width: 768px) {
+
+            /* --- Header --- */
+            header .max-w-7xl {
+                padding-top: 10px;
+                padding-bottom: 10px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            header .max-w-7xl>a img {
+                height: 40px;
+            }
+
+            #authButtons,
+            #userInfo {
+                gap: 6px;
+            }
+
+            #authButtons button,
+            #userInfo button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            /* --- Categories Nav --- */
+            nav .max-w-7xl>div {
+                justify-content: flex-start;
+            }
+
+            .cat-btn {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .cat-btn svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            /* --- Hero --- */
+            .relative.py-14 {
+                padding: 2rem 0;
+            }
+
+            .relative.py-14 h1 {
+                font-size: 1.6rem;
+                line-height: 1.3;
+            }
+
+            .relative.py-14 p {
+                font-size: 0.95rem;
+            }
+
+            .relative.py-14 a {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            /* --- Platform Icons --- */
+            #plataformasIcons {
+                gap: 16px !important;
+            }
+
+            #plataformasIcons>a>div {
+                width: 48px;
+                height: 48px;
+            }
+
+            #plataformasIcons>a>div img {
+                width: 30px;
+                height: 30px;
+            }
+
+            #plataformasIcons>a>span {
+                font-size: 0.7rem;
+            }
+
+            /* --- Catalog Grid --- */
+            #catalogoGrid {
+                gap: 12px !important;
+            }
+
+            #catalogoGrid>div .p-4 {
+                padding: 10px;
+            }
+
+            #catalogoGrid>div .h-32 {
+                height: 100px;
+            }
+
+            #catalogoGrid>div h3 {
+                font-size: 0.85rem;
+            }
+
+            #catalogoGrid>div .text-xl {
+                font-size: 1rem;
+            }
+
+            /* --- Combos Section --- */
+            .combo-section {
+                padding: 1.5rem 0;
+            }
+
+            .combo-section h2 {
+                font-size: 1.5rem !important;
+            }
+
+            .combo-section .text-gray-400 {
+                font-size: 0.85rem;
+                padding: 0 10px;
+                /* Prevent text touching edges */
+            }
+
+            .combo-column-box {
+                padding: 12px 6px;
+                /* Even tighter padding */
+                border-radius: 12px;
+                width: 100%;
+                overflow: hidden;
+                /* Contain children */
+            }
+
+            .combo-column-box h3 {
+                font-size: 0.8rem;
+                /* Smaller header */
+                white-space: normal;
+                /* Allow wrapping */
+                line-height: 1.2;
+                margin-bottom: 12px;
+                padding: 0 4px;
+            }
+
+            .combo-carousel {
+                gap: 6px;
+                /* Tighter gap */
+            }
+
+            .combo-card {
+                /* (100% - 12px (2 gaps)) / 3 */
+                flex: 0 0 calc((100% - 12px) / 3);
+                padding: 6px 2px;
+                border-width: 1px;
+                min-width: 0;
+                /* Prevent flex blowout */
+            }
+
+            .combo-card img {
+                width: 36px;
+                height: 36px;
+                /* Smaller icon */
+                margin-bottom: 4px;
+            }
+
+            .combo-card .card-name {
+                font-size: 0.6rem;
+                line-height: 1.1;
+                white-space: normal;
+                /* Allow name wrapping */
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+
+            .combo-card .card-price {
+                font-size: 0.7rem;
+                margin-top: 2px;
+            }
+
+            .carousel-arrow {
+                display: none !important;
+            }
+
+            .selected-icons-row img {
+                width: 24px;
+                height: 24px;
+            }
+
+            .selected-icons-row .subtotal {
+                font-size: 0.9rem;
+            }
+
+            /* --- Combo Total Panel --- */
+            .combo-total-panel {
+                padding: 12px 14px;
+                gap: 8px;
+                margin-top: 16px;
+                flex-direction: column;
+                text-align: center;
+                width: 100%;
+                /* Ensure it fits */
+                box-sizing: border-box;
+            }
+
+            .combo-total-panel .btn-buy-combo {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .combo-total-panel .total-label {
+                font-size: 1.1rem;
+            }
+
+            /* --- Precios Table -> Card Layout --- */
+            .precios-table {
+                min-width: unset;
+            }
+
+            .precios-table thead {
+                display: none;
+            }
+
+            .precios-table tbody tr {
+                display: block;
+                background: #161b22;
+                border: 1px solid #21262d;
+                border-radius: 10px;
+                padding: 14px;
+                margin-bottom: 12px;
+            }
+
+            .precios-table tbody td {
+                display: block;
+                padding: 4px 0;
+                white-space: normal;
+            }
+
+            /* Hide Detalles (3rd), Stock (5th) on mobile */
+            .precios-table tbody td:nth-child(3),
+            .precios-table tbody td:nth-child(5) {
+                display: none;
+            }
+
+            /* Vendedor */
+            .precios-table tbody td:nth-child(1) {
+                margin-bottom: 6px;
+            }
+
+            /* Servicio */
+            .precios-table tbody td:nth-child(2) {
+                margin-bottom: 8px;
+            }
+
+            /* Precio */
+            .precios-table .precio-cell {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+
+            /* Comprar button full width */
+            .precios-table .btn-comprar {
+                width: 100%;
+                text-align: center;
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .precios-table .btn-comprar br {
+                display: none;
+            }
+
+            /* --- Footer --- */
+            footer p {
+                font-size: 0.8rem;
+            }
+
+            /* --- Modals --- */
+            #loginModal>div,
+            #registerModal>div {
+                padding: 20px;
+                margin: 12px;
+            }
+
+            #loginModal h3,
+            #registerModal h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 380px) {
+            #catalogoGrid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .combo-card {
+                flex: 0 0 110px;
+            }
+
+            header .max-w-7xl>a img {
+                height: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+    <div id="comunicadoBanner" style="display: none; background: #166534; color: #fff; padding: 10px 16px; text-align: center; position: relative;">
+        <span id="comunicadoMensaje"></span>
+        <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem;">&times;</button>
+    </div>
+    <!-- HEADER -->
+    <header class="bg-black border-b border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <button type="button" id="btnMenuMobile" class="btn-menu-mobile lg:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors" onclick="toggleSidebar()" aria-label="Abrir menú">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <a href="index.html" class="flex-1 lg:flex-initial"><img src="https://gwoter.com/logo.png" alt="programmit" class="h-16"></a>
+
+            <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+                <div class="flex w-full rounded-lg overflow-hidden shadow-lg">
+                    <input type="text" id="searchInput" placeholder="¿Qué estás buscando?"
+                        class="flex-1 bg-white text-gray-800 px-5 py-3 placeholder-gray-400 focus:outline-none text-sm border-0">
+                    <div class="flex items-center bg-white border-l border-gray-300">
+                        <select id="categoryFilter"
+                            class="bg-white text-gray-600 pl-4 pr-8 py-3 focus:outline-none cursor-pointer text-sm font-medium border-0"
+                            style="appearance: none; -webkit-appearance: none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 12px center;">
+                            <option value="">Todas las categorías</option>
+                            <option value="cuentas premium">Cuentas Premium</option>
+                            <option value="licencias">Licencias</option>
+                            <option value="cursos">Cursos</option>
+                            <option value="software-sistemas">Software-Sistemas</option>
+                            <option value="pedidos especiales">Pedidos Especiales</option>
+                        </select>
+                    </div>
+                    <button onclick="filtrarCatalogo()"
+                        class="bg-blue-600 hover:bg-blue-700 px-5 flex items-center justify-center transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Botones Auth (sin login) -->
+            <div id="authButtons" class="flex items-center gap-3">
+                <button onclick="openModal('loginModal')"
+                    class="px-4 py-2 text-gray-300 hover:text-white transition-colors">
+                    Iniciar Sesión
+                </button>
+                <button onclick="openModal('registerModal')"
+                    class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors">
+                    Registrarse
+                </button>
+            </div>
+
+            <!-- Usuario logueado -->
+            <div id="userInfo" class="hidden items-center gap-3">
+                <span class="text-gray-300">Hola, <strong id="userName"></strong></span>
+                <button onclick="logout()"
+                    class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors">
+                    Salir
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Overlay para cerrar sidebar en móvil -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()" aria-hidden="true"></div>
+
+    <div class="layout-with-sidebar">
+        <!-- MENÚ LATERAL IZQUIERDO -->
+        <aside id="sidebar" class="sidebar">
+            <p class="sidebar-title">Categorías</p>
+            <nav class="sidebar-nav">
+                <button type="button" onclick="filtrarPorCategoriaSidebar('')" class="sidebar-link active" data-cat="">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    Todos
+                </button>
+                <button type="button" onclick="filtrarPorCategoriaSidebar('cuentas premium')" class="sidebar-link" data-cat="cuentas premium">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    Cuentas Premium
+                </button>
+                <button type="button" onclick="filtrarPorCategoriaSidebar('licencias')" class="sidebar-link" data-cat="licencias">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    Licencias
+                </button>
+                <button type="button" onclick="filtrarPorCategoriaSidebar('cursos')" class="sidebar-link" data-cat="cursos">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                    Cursos
+                </button>
+                <button type="button" onclick="filtrarPorCategoriaSidebar('software-sistemas')" class="sidebar-link" data-cat="software-sistemas">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    Software-Sistemas
+                </button>
+                <button type="button" onclick="filtrarPorCategoriaSidebar('pedidos especiales')" class="sidebar-link" data-cat="pedidos especiales">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                    Pedidos Especiales
+                </button>
+                <button type="button" onclick="filtrarPorCategoriaSidebar('outlet')" class="sidebar-link" data-cat="outlet">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                    OUTLET <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1">HOT</span>
+                </button>
+            </nav>
+        </aside>
+
+        <div class="main-content">
+    <!-- BARRA DE CATEGORÍAS (se mantiene para móvil/tablet) -->
+    <nav class="bg-gray-950 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-center gap-1 overflow-x-auto py-2 scrollbar-hide">
+                <button onclick="filtrarPorCategoria('')" data-categoria=""
+                    class="cat-btn flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Todos
+                </button>
+                <button onclick="filtrarPorCategoria('cuentas premium')" data-categoria="cuentas premium"
+                    class="cat-btn flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Cuentas Premium
+                </button>
+                <button onclick="filtrarPorCategoria('licencias')" data-categoria="licencias"
+                    class="cat-btn flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Licencias
+                </button>
+                <button onclick="filtrarPorCategoria('cursos')" data-categoria="cursos"
+                    class="cat-btn flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    Cursos
+                </button>
+                <button onclick="filtrarPorCategoria('software-sistemas')" data-categoria="software-sistemas"
+                    class="cat-btn flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Software-Sistemas
+                </button>
+                <button onclick="filtrarPorCategoria('pedidos especiales')" data-categoria="pedidos especiales"
+                    class="cat-btn flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                    Pedidos Especiales
+                </button>
+                <button onclick="filtrarPorCategoria('outlet')" data-categoria="outlet"
+                    class="cat-btn flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    OUTLET
+                    <span
+                        class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">HOT</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="relative bg-cover bg-center bg-no-repeat"
+        style="background-image: url('https://gwoter.com/fondo.png');">
+        <div class="absolute inset-0 bg-black/50"></div>
+
+        <!-- HERO TEXT -->
+        <section class="relative py-14 text-center">
+            <div class="max-w-7xl mx-auto px-4">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Cuentas Premium al Mejor Precio</h1>
+                <p class="text-xl text-gray-300 mb-8">Netflix, Disney+, HBO Max, Spotify y más...</p>
+                <a href="#plataformas"
+                    class="inline-block bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Ver Catálogo
+                </a>
+            </div>
+        </section>
+
+        <!-- PLATAFORMAS ICONS -->
+        <section class="relative py-8 border-t border-white/10">
+            <div class="max-w-7xl mx-auto px-4">
+                <div id="plataformasIcons" class="flex flex-wrap justify-center gap-8"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- LISTADO DE PRECIOS / OFERTAS (arriba para marketing) -->
+    <section class="precios-table-section py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-8" style="color:#e6edf3;">Precios y Ofertas</h2>
+            <div class="precios-table-wrap">
+                <table class="precios-table">
+                    <thead>
+                        <tr>
+                            <th>Vendedor</th>
+                            <th>Servicio</th>
+                            <th>Detalles</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preciosList"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATÁLOGO -->
+    <section id="plataformas" class="py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-8">Cuentas Disponibles</h2>
+            <div id="catalogoGrid" class="grid grid-cols-1 gap-6"></div>
+            <div id="noResults" class="hidden text-center py-16 text-gray-500">
+                <p class="text-xl">No hay cuentas disponibles</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== COMBOS ====== -->
+    <section class="combo-section py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-wide mb-2">COMBOS</h2>
+                <p class="text-gray-400">
+                    <strong class="text-white">Armar Combo Personalizado</strong> - Selecciona múltiples cuentas y
+                    compra tu pack ideal en un solo click.
+                </p>
+            </div>
+
+            <div class="combo-columns">
+                <!-- Columna Perfiles -->
+                <div class="combo-column-box">
+                    <h3>Perfil – Dispositivo</h3>
+                    <div class="combo-carousel-wrapper">
+                        <button class="carousel-arrow left" onclick="scrollCombo('perfiles', -1)">&#8249;</button>
+                        <div class="combo-carousel" id="carousel-perfiles"></div>
+                        <button class="carousel-arrow right" onclick="scrollCombo('perfiles', 1)">&#8250;</button>
+                    </div>
+                    <div class="combo-dots" id="dots-perfiles"></div>
+                    <div class="selected-icons-row" id="icons-perfiles">
+                        <!-- filled by JS -->
+                        <span class="subtotal" id="subtotal-perfiles">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Columna Cuentas Enteras -->
+                <div class="combo-column-box">
+                    <h3>Cuenta Entera</h3>
+                    <div class="combo-carousel-wrapper">
+                        <button class="carousel-arrow left" onclick="scrollCombo('cuentas', -1)">&#8249;</button>
+                        <div class="combo-carousel" id="carousel-cuentas"></div>
+                        <button class="carousel-arrow right" onclick="scrollCombo('cuentas', 1)">&#8250;</button>
+                    </div>
+                    <div class="combo-dots" id="dots-cuentas"></div>
+                    <div class="selected-icons-row" id="icons-cuentas">
+                        <!-- filled by JS -->
+                        <span class="subtotal" id="subtotal-cuentas">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Total -->
+            <div class="combo-total-panel" id="comboTotalPanel">
+                <div id="comboTotalIcons" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"></div>
+                <span class="total-label" id="comboTotalLabel">Total: $0.00</span>
+                <button class="btn-buy-combo" onclick="buyCombo()">Comprar Combo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500">
+            <p>&copy; 2024 programmit - Todos los derechos reservados</p>
+        </div>
+    </footer>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN -->
+    <div id="loginModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-2xl p-8 w-full max-w-md mx-4 border border-gray-700">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Iniciar Sesión</h3>
+                <button onclick="closeModal('loginModal')"
+                    class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="loginError"
+                class="hidden mb-4 bg-red-900/50 border border-red-500 text-red-300 px-4 py-2 rounded-lg text-sm"></div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Correo electrónico</label>
+                    <input type="email" name="email" required
+                        class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Contraseña</label>
+                    <input type="password" name="password" required
+                        class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none">
+                </div>
+                <button type="submit"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-colors">
+                    Ingresar
+                </button>
+            </form>
+            <p class="text-center text-gray-400 mt-4">
+                ¿No tienes cuenta? <button onclick="closeModal('loginModal'); openModal('registerModal')"
+                    class="text-purple-400 hover:text-purple-300">Regístrate</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRO -->
+    <div id="registerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-2xl p-8 w-full max-w-md mx-4 border border-gray-700">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Crear Cuenta</h3>
+                <button onclick="closeModal('registerModal')"
+                    class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="registerError"
+                class="hidden mb-4 bg-red-900/50 border border-red-500 text-red-300 px-4 py-2 rounded-lg text-sm"></div>
+            <div id="registerSuccess"
+                class="hidden mb-4 bg-green-900/50 border border-green-500 text-green-300 px-4 py-2 rounded-lg text-sm">
+            </div>
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Nombre completo</label>
+                    <input type="text" name="nombre" required
+                        class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Correo electrónico</label>
+                    <input type="email" name="email" required
+                        class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Contraseña</label>
+                    <input type="password" name="password" required
+                        class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Confirmar contraseña</label>
+                    <input type="password" name="password2" required
+                        class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none">
+                </div>
+                <button type="submit"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-colors">
+                    Registrarse
+                </button>
+            </form>
+            <p class="text-center text-gray-400 mt-4">
+                ¿Ya tienes cuenta? <button onclick="closeModal('registerModal'); openModal('loginModal')"
+                    class="text-purple-400 hover:text-purple-300">Inicia sesión</button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ===============================
+        // MODALES
+        // ===============================
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+        document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal.id);
+            });
+        });
+
+        // ===============================
+        // AUTENTICACIÓN
+        // ===============================
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('action', 'login');
+
+            try {
+                const response = await fetch('auth.php', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    closeModal('loginModal');
+                    window.location.href = 'store.php';
+                    e.target.reset();
+                } else {
+                    document.getElementById('loginError').textContent = data.error;
+                    document.getElementById('loginError').classList.remove('hidden');
+                }
+            } catch (error) {
+                document.getElementById('loginError').textContent = 'Error de conexión';
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        });
+
+        // Registro
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('action', 'registro');
+
+            try {
+                const response = await fetch('auth.php', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('registerSuccess').textContent = 'Registro exitoso';
+                    document.getElementById('registerSuccess').classList.remove('hidden');
+                    document.getElementById('registerError').classList.add('hidden');
+                    setTimeout(() => {
+                        closeModal('registerModal');
+                        window.location.href = 'store.php';
+                        e.target.reset();
+                    }, 1000);
+                } else {
+                    document.getElementById('registerError').textContent = data.error;
+                    document.getElementById('registerError').classList.remove('hidden');
+                    document.getElementById('registerSuccess').classList.add('hidden');
+                }
+            } catch (error) {
+                document.getElementById('registerError').textContent = 'Error de conexión';
+                document.getElementById('registerError').classList.remove('hidden');
+            }
+        });
+
+        // Logout
+        async function logout() {
+            const formData = new FormData();
+            formData.append('action', 'logout');
+            await fetch('auth.php', { method: 'POST', body: formData });
+            checkSession();
+        }
+
+        // Verificar sesión
+        async function checkSession() {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'check');
+                const response = await fetch('auth.php', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.loggedIn) {
+                    document.getElementById('authButtons').classList.add('hidden');
+                    document.getElementById('userInfo').classList.remove('hidden');
+                    document.getElementById('userInfo').classList.add('flex');
+                    document.getElementById('userName').textContent = data.user.nombre;
+                } else {
+                    document.getElementById('authButtons').classList.remove('hidden');
+                    document.getElementById('userInfo').classList.add('hidden');
+                    document.getElementById('userInfo').classList.remove('flex');
+                }
+            } catch (error) {
+                console.error('Error verificando sesión:', error);
+            }
+        }
+
+        // ===============================
+        // CARGAR DATOS
+        // ===============================
+        async function cargarDatos() {
+            try {
+                const response = await fetch('api.php');
+                const data = await response.json();
+                renderPlataformas(data.plataformas);
+                renderCatalogo(data.catalogo);
+                renderPrecios(data.cuentasOfertas || []);
+                renderComboBuilder(data.catalogo);
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+            }
+        }
+
+        function renderPlataformas(plataformas) {
+            const container = document.getElementById('plataformasIcons');
+            container.innerHTML = plataformas.map(p => `
+                <a href="#plataforma-${p.id}" class="flex flex-col items-center gap-2 text-gray-400 hover:text-white transition-colors group">
+                    <div class="w-16 h-16 bg-gray-900 rounded-xl flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                        <img src="${p.imagen_url}" alt="${p.nombre}" class="w-10 h-10 object-contain" onerror="this.parentElement.innerHTML='<span class=\\'text-2xl font-bold\\'>${p.nombre.charAt(0)}</span>'">
+                    </div>
+                    <span class="text-sm">${p.nombre}</span>
+                </a>
+            `).join('');
+        }
+
+        function renderCatalogo(catalogo) {
+            const container = document.getElementById('catalogoGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (catalogo.length === 0) {
+                container.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            container.innerHTML = catalogo.map(item => `
+                <div id="plataforma-${item.id}" class="card-hover bg-gray-800 rounded-xl border border-gray-700 overflow-hidden flex items-center" data-categoria="${(item.categoria || 'cuentas premium').toLowerCase()}">
+                    <div class="w-24 h-24 bg-gray-900 flex items-center justify-center p-3 flex-shrink-0">
+                        <img src="${item.imagen}" alt="${item.nombre}" class="max-h-full max-w-full object-contain" onerror="this.parentElement.innerHTML='<span class=\\'text-2xl font-bold text-gray-600\\'>${item.nombre.substring(0, 2)}</span>'">
+                    </div>
+                    <div class="flex-1 p-3 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-base mb-0.5">${item.nombre}</h3>
+                            <p class="text-gray-400 text-xs">${item.cantidad} disponible${item.cantidad > 1 ? 's' : ''}</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-emerald-400 font-bold text-lg">$${parseFloat(item.precio_min).toFixed(2)}</span>
+                            <button onclick="openModal('loginModal')" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm font-medium transition-colors">
+                                Comprar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPrecios(cuentas) {
+            const container = document.getElementById('preciosList');
+            const section = container.closest('section');
+            section.classList.remove('hidden');
+            if (cuentas.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            // Agrupar por plataforma + tipo (solo cuentas marcadas como oferta)
+            const grouped = {};
+            cuentas.forEach(c => {
+                const tipo = c.tipo_cuenta || 'completa';
+                const key = c.plataforma_id + '_' + tipo;
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        id: c.plataforma_id,
+                        nombre: c.plataforma_nombre + (tipo === 'perfil' ? ' (Perfil)' : '') + ' Premium',
+                        imagen: c.imagen_url || c.plataforma_imagen || '',
+                        precio: parseFloat(c.precio),
+                        stock: 0
+                    };
+                }
+                grouped[key].stock++;
+                const p = parseFloat(c.precio);
+                if (p < grouped[key].precio) grouped[key].precio = p;
+            });
+
+            const items = Object.values(grouped);
+            const storeName = document.title.split(' - ')[0] || 'StreamStore';
+
+            container.innerHTML = items.map(item => `
+                <tr>
+                    <td>
+                        <div class="vendedor-cell">
+                            <img src="${item.imagen}" alt="" onerror="this.style.display='none'">
+                            <div>
+                                <div class="vendedor-name">${storeName} ⭐</div>
+                                <div class="vendedor-stock">${item.stock} cuentas disponibles</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="servicio-cell">
+                            <div>
+                                <div><span class="servicio-id">ID: ${item.id}</span>&nbsp; <span class="servicio-name">${item.nombre}</span></div>
+                                <div><span class="badge-disponible">Disponible</span></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><button class="btn-terminos">Términos</button></td>
+                    <td class="precio-cell">$${item.precio.toFixed(2)}</td>
+                    <td class="stock-cell">${item.stock} stock</td>
+                    <td><button class="btn-comprar" onclick="openModal('loginModal')">Comprar por<br>$${item.precio.toFixed(2)}</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // ===============================
+        // COMBO BUILDER
+        // ===============================
+        let comboItems = {}; // { uid: { nombre, precio, imagen, tipo } }
+
+        function renderComboBuilder(catalogo) {
+            const perfiles = [];
+            const cuentas = [];
+
+            catalogo.forEach(item => {
+                const tipo = item.tipo_cuenta || 'completa';
+                const nombreLower = item.nombre.toLowerCase();
+                const keywordsPerfil = ['perfil', 'pantalla', 'dispositivo', '1 user', '1 usuario'];
+                const parecePerfil = keywordsPerfil.some(kw => nombreLower.includes(kw));
+
+                if (tipo === 'perfil' || (tipo === 'completa' && parecePerfil && !item.tipo_cuenta)) {
+                    perfiles.push(item);
+                } else {
+                    cuentas.push(item);
+                }
+            });
+
+            renderCarouselItems('perfiles', perfiles);
+            renderCarouselItems('cuentas', cuentas);
+        }
+
+        function renderCarouselItems(prefix, items) {
+            const carousel = document.getElementById('carousel-' + prefix);
+            const dotsContainer = document.getElementById('dots-' + prefix);
+            if (!carousel) return;
+
+            if (items.length === 0) {
+                carousel.innerHTML = '<p style="color:#8b949e;text-align:center;width:100%;padding:30px 0;">No hay items disponibles.</p>';
+                return;
+            }
+
+            carousel.innerHTML = items.map(item => `
+                <div class="combo-card" id="combo-card-${item.uid}" onclick="toggleComboItem('${item.uid}', '${item.nombre.replace(/'/g, "\\'")}', ${item.precio_min}, '${item.imagen}', '${item.tipo_cuenta || 'completa'}')">
+                    <div class="check-badge">&#10003;</div>
+                    <img src="${item.imagen}" alt="${item.nombre}" onerror="this.src='placeholder.png'">
+                    <div class="card-name">${item.nombre}</div>
+                    <div class="card-price">$${parseFloat(item.precio_min).toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            // Generate dots
+            // Calculate actual width including gap
+            const gap = 16;
+            const containerWidth = carousel.clientWidth;
+            // Approximation of item width based on 3 items visible
+            const itemWidth = (containerWidth - (gap * 2)) / 3;
+            const itemsPerPage = 3;
+
+            const totalPages = Math.ceil(items.length / itemsPerPage);
+
+            let dotsHTML = '';
+            for (let i = 0; i < totalPages; i++) {
+                dotsHTML += `<span class="dot ${i === 0 ? 'active' : ''}" onclick="scrollToComboPage('${prefix}', ${i})"></span>`;
+            }
+            dotsContainer.innerHTML = dotsHTML;
+
+            // Update dots on scroll
+            carousel.addEventListener('scroll', () => updateComboDots(prefix), { passive: true });
+        }
+
+        function scrollCombo(prefix, direction) {
+            const carousel = document.getElementById('carousel-' + prefix);
+            if (!carousel) return;
+            const scrollAmount = carousel.clientWidth;
+            carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        function scrollToComboPage(prefix, pageIndex) {
+            const carousel = document.getElementById('carousel-' + prefix);
+            if (!carousel) return;
+            carousel.scrollTo({ left: carousel.clientWidth * pageIndex, behavior: 'smooth' });
+        }
+
+        function updateComboDots(prefix) {
+            const carousel = document.getElementById('carousel-' + prefix);
+            const dotsContainer = document.getElementById('dots-' + prefix);
+            if (!carousel || !dotsContainer) return;
+
+            const scrollLeft = carousel.scrollLeft;
+            const width = carousel.clientWidth || 1;
+            const pageIndex = Math.round(scrollLeft / width);
+
+            const dots = dotsContainer.children;
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].classList.toggle('active', i === pageIndex);
+            }
+        }
+
+        function toggleComboItem(uid, nombre, precio, imagen, tipo) {
+            const card = document.getElementById('combo-card-' + uid);
+
+            if (comboItems[uid]) {
+                delete comboItems[uid];
+                if (card) card.classList.remove('selected');
+            } else {
+                comboItems[uid] = { nombre, precio: parseFloat(precio), imagen, tipo };
+                if (card) card.classList.add('selected');
+            }
+
+            actualizarResumenCombo();
+        }
+
+        function actualizarResumenCombo() {
+            let subtotalPerfiles = 0;
+            let subtotalCuentas = 0;
+            let allIcons = [];
+            let iconsPerfiles = [];
+            let iconsCuentas = [];
+
+            Object.values(comboItems).forEach(item => {
+                allIcons.push(item.imagen);
+                if (item.tipo === 'perfil') {
+                    subtotalPerfiles += item.precio;
+                    iconsPerfiles.push(item.imagen);
+                } else {
+                    subtotalCuentas += item.precio;
+                    iconsCuentas.push(item.imagen);
+                }
+            });
+
+            // Update perfiles column icons
+            const icPerf = document.getElementById('icons-perfiles');
+            if (icPerf) {
+                const imgs = iconsPerfiles.map(src => `<img src="${src}" alt="">`).join('');
+                icPerf.innerHTML = imgs + `<span class="subtotal">$${subtotalPerfiles.toFixed(2)}</span>`;
+            }
+
+            // Update cuentas column icons
+            const icCuent = document.getElementById('icons-cuentas');
+            if (icCuent) {
+                const imgs = iconsCuentas.map(src => `<img src="${src}" alt="">`).join('');
+                icCuent.innerHTML = imgs + `<span class="subtotal">$${subtotalCuentas.toFixed(2)}</span>`;
+            }
+
+            // Update total panel
+            const total = subtotalPerfiles + subtotalCuentas;
+            const panel = document.getElementById('comboTotalPanel');
+            const totalIcons = document.getElementById('comboTotalIcons');
+            const totalLabel = document.getElementById('comboTotalLabel');
+
+            if (total > 0) {
+                panel.classList.add('visible');
+                totalIcons.innerHTML = allIcons.map(src => `<img src="${src}" alt="">`).join('');
+                totalLabel.textContent = 'Total: $' + total.toFixed(2);
+            } else {
+                panel.classList.remove('visible');
+            }
+        }
+
+        function buyCombo() {
+            openModal('loginModal');
+        }
+
+        // Sidebar móvil
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('visible');
+            document.body.style.overflow = document.getElementById('sidebar').classList.contains('open') ? 'hidden' : '';
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('visible');
+            document.body.style.overflow = '';
+        }
+
+        // Filtrar desde sidebar (sincroniza barra y cierra sidebar en móvil)
+        function filtrarPorCategoriaSidebar(categoria) {
+            document.getElementById('categoryFilter').value = categoria;
+            document.querySelectorAll('.sidebar-link').forEach(btn => {
+                btn.classList.toggle('active', (btn.getAttribute('data-cat') || '') === categoria);
+            });
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                const match = btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + categoria + "'");
+                btn.classList.toggle('bg-gray-800', match);
+                btn.classList.toggle('text-white', match);
+                btn.classList.toggle('text-gray-300', !match);
+            });
+            filtrarCatalogo();
+            closeSidebar();
+        }
+
+        // Filtrar por categoría desde la barra de navegación
+        function filtrarPorCategoria(categoria) {
+            document.getElementById('categoryFilter').value = categoria;
+            document.querySelectorAll('.sidebar-link').forEach(btn => {
+                btn.classList.toggle('active', (btn.getAttribute('data-cat') || '') === categoria);
+            });
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                const match = (btn.getAttribute('data-categoria') || '') === categoria;
+                btn.classList.toggle('bg-gray-800', match);
+                btn.classList.toggle('text-white', match);
+                btn.classList.toggle('text-gray-300', !match);
+            });
+            filtrarCatalogo();
+        }
+
+        // Búsqueda y filtro por categoría
+        function filtrarCatalogo() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const categoria = document.getElementById('categoryFilter').value.toLowerCase();
+            document.querySelectorAll('#catalogoGrid > div').forEach(card => {
+                const nombre = card.querySelector('h3').textContent.toLowerCase();
+                const cardCategoria = (card.getAttribute('data-categoria') || '').toLowerCase();
+                const matchText = nombre.includes(query);
+                const matchCategoria = !categoria || cardCategoria === categoria;
+                card.style.display = (matchText && matchCategoria) ? '' : 'none';
+            });
+        }
+        document.getElementById('searchInput').addEventListener('input', filtrarCatalogo);
+        document.getElementById('categoryFilter').addEventListener('change', filtrarCatalogo);
+
+        // ===============================
+        // CARGAR CONFIG MARCA
+        // ===============================
+        async function cargarConfigMarca() {
+            try {
+                const response = await fetch('config_marca.json?t=' + Date.now());
+                const config = await response.json();
+
+                // Favicon
+                const faviconLink = document.getElementById('faviconLink');
+                if (faviconLink && config.favicon_url) {
+                    faviconLink.href = config.favicon_url;
+                }
+
+                // Logo
+                const logoImg = document.querySelector('header img');
+                if (logoImg && config.logo_url) {
+                    logoImg.src = config.logo_url;
+                }
+
+                // Título y footer
+                if (config.nombre_tienda) {
+                    document.title = config.nombre_tienda + ' - Cuentas Premium';
+                    const footer = document.querySelector('footer p');
+                    if (footer) {
+                        footer.textContent = '© ' + new Date().getFullYear() + ' ' + config.nombre_tienda + ' - Todos los derechos reservados';
+                    }
+                }
+
+                // Color principal (botones, acentos)
+                if (config.color_principal) {
+                    document.documentElement.style.setProperty('--color-primary', config.color_principal);
+                    document.querySelectorAll('.bg-purple-600').forEach(el => {
+                        el.style.backgroundColor = config.color_principal;
+                    });
+                }
+
+                // Colores de apariencia (fondos y textos)
+                if (config.fondo_principal) document.documentElement.style.setProperty('--config-fondo', config.fondo_principal);
+                if (config.texto_principal) document.documentElement.style.setProperty('--config-texto', config.texto_principal);
+
+                // Comunicado global
+                if (config.comunicado_activo && config.comunicado_mensaje) {
+                    const banner = document.getElementById('comunicadoBanner');
+                    const msg = document.getElementById('comunicadoMensaje');
+                    if (banner && msg) {
+                        msg.textContent = config.comunicado_mensaje;
+                        banner.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.log('Config marca no disponible');
+            }
+        }
+
+        // Iniciar
+        cargarDatos();
+        checkSession();
+        cargarConfigMarca();
+    </script>
+</body>
+
+</html>
