@@ -2,36 +2,43 @@
 /**
  * Configuración de Base de Datos - Dashboard Streaming
  * Conexión PDO a MySQL
+ * Las credenciales se leen desde .env (nunca hardcodear aquí)
  */
-
-define('DB_HOST', 'localhost');
-define('DB_PORT', '3306');
-define('DB_NAME', 'maikyram_mikro');
-define('DB_USER', 'maikyram_mikro');
-define('DB_PASS', 'K]ABIO.[rR5R');
-define('DB_CHARSET', 'utf8mb4');
-
+// Cargar .env si existe
+$_envFile = __DIR__ . '/.env';
+si (archivo_existe($_envFile)) {
+    foreach (archivo($_envFile, ARCHIVO_IGNORAR_NUEVAS_LÍNEAS | ARCHIVO_SALTAR_LÍNEAS_VACÍAS) como $_línea) {
+        si (str_comienza_con(trim($_línea), '#') || !str_contiene($_línea, '=')) continuar;
+        [$_k, $_v] = explotar('=', $_línea, 2);
+        $_ENV[trim($_k)] = trim($_v);
+        putenv(trim($_k) . '=' . trim($_v));
+    }
+}
+definir('DB_HOST',    $_ENV['DB_HOST']     ?? 'localhost');
+definir('DB_PORT',    $_ENV['DB_PORT']     ?? '3306');
+definir('DB_NAME',    $_ENV['DB_BASE DE DATOS'] ?? '');
+definir('DB_USUARIO',    $_ENV['DB_NOMBRE DE USUARIO'] ?? '');
+definir('DB_PASS',    $_ENV['DB_PASSWORD'] ?? '');
+definir('DB_CHARSET', $_ENV['DB_CHARSET']  ?? 'utf8mb4');
 /**
- * Configuración de Veri Pagos API
+ * API de Configuración de Veri Pagos
  * https://veripagos.com/
  */
-define('VERIPAGOS_USERNAME', 'programmit');
-define('VERIPAGOS_PASSWORD', 'X!MJgck5Q?');
-define('VERIPAGOS_SECRET_KEY', '863d987b-1b3d-4bc0-9a86-69d46bd05fe8');
-
-// Tasa de conversión: 1 Bs = X créditos (ajustar según necesidad)
-define('CREDITOS_POR_BS', 1.0);
-
+definir('NOMBRE_USUARIO DE VERIPAGOS',   $_ENV['NOMBRE_USUARIO DE VERIPAGOS']   ?? '');
+definir('CONTRASEÑA_VERIPAGOS',   $_ENV['CONTRASEÑA_VERIPAGOS']   ?? '');
+definir('VERIPAGOS_SECRET_KEY', $_ENV['VERIPAGOS_SECRET_KEY'] ?? '');
+// Tasa de conversación: 1 Bs = X créditos (ajustar según necesidad)
+definir('CRÉDITOS_POR_BS', (float)($_ENV['CRÉDITOS_POR_BS'] ?? 1.0));
 /**
- * Crear conexión PDO
+ * Crear conexión DOP
  * @return PDO
  */
-function getConnection(): PDO {
-    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+función obtenerConexión(): DOP {
+    $dsn = "mysql:host=" . DB_HOST . ";puerto=" . DB_PUERTO . ";dbname=" . DB_NOMBRE . ";charset=" . CONJUNTO DE CARACTERES DB_;
     
-    $options = [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    $opciones = [
+        DOP::ATTR_ERRMODE => DOP::ERRORMODE_EXCEPTION,
+        DOP::ATTR_DEFAULT_FETCH_MODE => DOP::BUSCAR_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
     
@@ -42,7 +49,6 @@ function getConnection(): PDO {
         die("Error de conexión: " . $e->getMessage());
     }
 }
-
 /**
  * Obtener todas las plataformas
  * @return array
@@ -52,7 +58,6 @@ function getPlataformas(): array {
     $stmt = $pdo->query("SELECT * FROM plataformas ORDER BY nombre");
     return $stmt->fetchAll();
 }
-
 /**
  * Obtener todas las cuentas con información de plataforma
  * @return array
@@ -66,7 +71,6 @@ function getCuentas(): array {
     $stmt = $pdo->query($sql);
     return $stmt->fetchAll();
 }
-
 /**
  * Obtener una cuenta por ID
  * @param int $id
@@ -78,7 +82,6 @@ function getCuentaById(int $id): array|false {
     $stmt->execute([$id]);
     return $stmt->fetch();
 }
-
 /**
  * Obtener créditos de un usuario
  * @param int $userId
@@ -91,7 +94,6 @@ function getCreditos(int $userId): float {
     $result = $stmt->fetch();
     return $result ? (float)$result['creditos'] : 0.0;
 }
-
 /**
  * Agregar créditos a un usuario
  * @param int $userId
@@ -103,7 +105,6 @@ function agregarCreditos(int $userId, float $monto): bool {
     $stmt = $pdo->prepare("UPDATE usuarios SET creditos = creditos + ? WHERE id = ?");
     return $stmt->execute([$monto, $userId]);
 }
-
 /**
  * Descontar créditos de un usuario
  * @param int $userId
@@ -120,7 +121,6 @@ function descontarCreditos(int $userId, float $monto): bool {
     $stmt = $pdo->prepare("UPDATE usuarios SET creditos = creditos - ? WHERE id = ?");
     return $stmt->execute([$monto, $userId]);
 }
-
 /**
  * Crear una transacción de recarga
  * @param int $userId
@@ -147,7 +147,6 @@ function crearTransaccion(int $userId, string $movimientoId, float $monto, float
     ]);
     return $result ? (int)$pdo->lastInsertId() : false;
 }
-
 /**
  * Obtener transacción por movimiento_id
  * @param string $movimientoId
@@ -159,7 +158,6 @@ function getTransaccionPorMovimiento(string $movimientoId): array|false {
     $stmt->execute([$movimientoId]);
     return $stmt->fetch();
 }
-
 /**
  * Registrar una compra
  * @param int $userId
@@ -173,7 +171,6 @@ function registrarCompra(int $userId, int $cuentaId, float $creditos): int|false
     $result = $stmt->execute([$userId, $cuentaId, $creditos]);
     return $result ? (int)$pdo->lastInsertId() : false;
 }
-
 /**
  * Obtener todos los métodos de pago
  * @return array
@@ -183,7 +180,6 @@ function getMetodosPago(): array {
     $stmt = $pdo->query("SELECT * FROM payment_methods ORDER BY display_order, id");
     return $stmt->fetchAll();
 }
-
 /**
  * Obtener solo métodos de pago activos
  * @param bool $forNewUsers - Si es true, solo retorna los que permiten nuevos usuarios
@@ -199,7 +195,6 @@ function getMetodosPagoActivos(bool $forNewUsers = false): array {
     $stmt = $pdo->query($sql);
     return $stmt->fetchAll();
 }
-
 /**
  * Obtener método de pago por ID
  * @param int $id
@@ -211,11 +206,9 @@ function getMetodoPagoById(int $id): array|false {
     $stmt->execute([$id]);
     return $stmt->fetch();
 }
-
 // ========================================
 // FUNCIONES DE PLANES DE MEMBRESÍA
 // ========================================
-
 /**
  * Obtener todos los planes de membresía
  * @return array
@@ -225,7 +218,6 @@ function getPlanes(): array {
     $stmt = $pdo->query("SELECT * FROM membership_plans ORDER BY display_order, id");
     return $stmt->fetchAll();
 }
-
 /**
  * Obtener solo planes activos
  * @return array
@@ -235,7 +227,6 @@ function getPlanesActivos(): array {
     $stmt = $pdo->query("SELECT * FROM membership_plans WHERE is_active = 1 ORDER BY display_order, id");
     return $stmt->fetchAll();
 }
-
 /**
  * Obtener plan por ID
  * @param int $id
@@ -246,4 +237,4 @@ function getPlanById(int $id): array|false {
     $stmt = $pdo->prepare("SELECT * FROM membership_plans WHERE id = ?");
     $stmt->execute([$id]);
     return $stmt->fetch();
-}
+/**
